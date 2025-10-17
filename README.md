@@ -3,18 +3,19 @@
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red.svg)](https://streamlit.io)
-[![IoT](https://img.shields.io/badge/IoT-MQTT%20%7C%20HTTP-orange.svg)](docs/API.md)
+[![API](https://img.shields.io/badge/API-Real--time-orange.svg)](docs/API.md)
 [![ML](https://img.shields.io/badge/ML-Ensemble%20%7C%20LSTM-purple.svg)](src/advanced_ml_models.py)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-green.svg)](https://github.com/sumit-singh53/climate-change-prediction-pune/actions)
 
-A comprehensive, enterprise-grade climate change and air quality prediction system for Pune with IoT integration, advanced machine learning models, and real-time monitoring capabilities.
+A comprehensive, enterprise-grade climate change and air quality prediction system for Pune with real-time data collection, advanced machine learning models, and interactive monitoring dashboard.
 
 ![System Architecture](https://via.placeholder.com/800x400/1f77b4/ffffff?text=Climate+%26+AQI+Prediction+System)
 
 ## ✨ Live Demo
 
-🌐 **Repository**: [GitHub Repository](https://github.com/sumit-singh53/climate-change-prediction-pune)  
-📊 **API Docs**: [Interactive API Documentation](docs/API.md)  
-🚀 **Quick Start**: [Setup Guide](GITHUB_SETUP.md)
+🌐 **Live Demo**: [View Repository](https://github.com/sumit-singh53/climate-change-prediction-pune)  
+📊 **Documentation**: [System Architecture](docs/API.md)  
+🏗️ **Project Structure**: [Directory Layout](PROJECT_STRUCTURE.md)
 
 ## 🌟 Features
 

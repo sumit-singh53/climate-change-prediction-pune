@@ -31,11 +31,11 @@ ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
 # Expose ports
-EXPOSE 8501 5000 1883
+EXPOSE 8501
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8501/_stcore/health || exit 1
 
 # Run application
-CMD ["python", "run_system.py", "--mode", "full", "--simulate-sensors"]
+CMD ["python", "run_system.py", "--mode", "full", "--collect-initial-data"]

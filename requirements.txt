@@ -15,7 +15,6 @@ statsmodels
 xgboost
 lightgbm
 aiohttp
-paho-mqtt
-flask
 joblib
 schedule
+asyncio

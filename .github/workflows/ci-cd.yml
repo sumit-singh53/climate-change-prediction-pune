@@ -108,7 +108,7 @@ jobs:
     
     - name: Test dashboard startup (non-blocking)
       run: |
-        timeout 30s python run_system.py --mode dashboard --quick --skip-setup || echo "Dashboard test completed (expected timeout)"
+        timeout 30s python run_system.py --mode dashboard --quick || echo "Dashboard test completed (expected timeout)"
       continue-on-error: true
 
   security:
@@ -216,14 +216,14 @@ jobs:
         print('✅ Data collector initialized successfully')
         "
     
-    - name: Test IoT integration module
+    - name: Test real-time data collector module
       run: |
         python -c "
         import sys
         sys.path.append('src')
-        from iot_integration import IoTDataCollector
-        collector = IoTDataCollector()
-        print('✅ IoT collector initialized successfully')
+        from realtime_data_collector import RealtimeDataCollector
+        collector = RealtimeDataCollector()
+        print('✅ Real-time collector initialized successfully')
         "
     
     - name: Test ML models module

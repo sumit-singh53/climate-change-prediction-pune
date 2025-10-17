@@ -1,261 +1,242 @@
-# API Documentation
+# Data Sources & System Architecture
 
-This document describes the APIs available in the Enhanced Climate & AQI Prediction System.
+This document describes the data sources, system architecture, and internal APIs of the Enhanced Climate & AQI Prediction System.
 
-## 🔌 IoT Data Submission API
+## 🌐 External Data Sources
 
-### Base URL
-```
-http://localhost:5000
-```
+### Open-Meteo APIs
+The system automatically fetches data from Open-Meteo, a reliable weather and air quality API service.
 
-### Authentication
-Currently no authentication required. Future versions will include API key authentication.
+#### Weather Data API
+- **Endpoint**: `https://api.open-meteo.com/v1/forecast`
+- **Parameters**: Current weather conditions for all 8 Pune locations
+- **Data Points**: Temperature, humidity, pressure, wind, precipitation, solar radiation, UV index
+- **Update Frequency**: Every 30 minutes
 
----
-
-## Endpoints
-
-### 1. Submit Sensor Data
-
-Submit real-time sensor data to the system.
-
-**Endpoint:** `POST /api/sensor-data`
-
-**Content-Type:** `application/json`
-
-**Request Body:**
-```json
-{
-  "sensor_type": "temperature",
-  "location_id": "pune_central",
-  "sensor_id": "temp_001",
-  "value": 28.5,
-  "unit": "C",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "quality_score": 0.95,
-  "metadata": {
-    "battery_level": 85,
-    "signal_strength": -45
-  }
-}
-```
-
-**Parameters:**
-- `sensor_type` (string, required): Type of sensor
-  - Supported: `temperature`, `humidity`, `pm25`, `pm10`, `co2`, `noise`, `pressure`, `wind_speed`
-- `location_id` (string, required): Location identifier
-  - Supported: `pune_central`, `pimpri_chinchwad`, `hadapsar`, `kothrud`, `wakad`, `baner`, `katraj`, `wagholi`
-- `sensor_id` (string, required): Unique sensor identifier
-- `value` (number, required): Sensor reading value
-- `unit` (string, optional): Unit of measurement
-- `timestamp` (string, optional): ISO 8601 timestamp (defaults to current time)
-- `quality_score` (number, optional): Data quality score 0.0-1.0 (defaults to 1.0)
-- `metadata` (object, optional): Additional sensor metadata
-
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "Data received successfully",
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-**Status Codes:**
-- `200 OK`: Data received successfully
-- `400 Bad Request`: Invalid request format or missing required fields
-- `422 Unprocessable Entity`: Data validation failed
-- `500 Internal Server Error`: Server error
-
-**Example cURL:**
-```bash
-curl -X POST http://localhost:5000/api/sensor-data \
-  -H "Content-Type: application/json" \
-  -d '{
-    "sensor_type": "temperature",
-    "location_id": "pune_central",
-    "sensor_id": "temp_001",
-    "value": 28.5,
-    "unit": "C",
-    "quality_score": 0.95
-  }'
-```
+#### Air Quality API
+- **Endpoint**: `https://air-quality-api.open-meteo.com/v1/air-quality`
+- **Parameters**: Current air quality conditions
+- **Data Points**: PM2.5, PM10, NO2, SO2, CO, O3, AQI
+- **Update Frequency**: Every 30 minutes
 
 ---
 
-### 2. Get Sensor Status
+## 🗄️ Database Schema
 
-Retrieve status information for a specific sensor.
-
-**Endpoint:** `GET /api/sensor-status/{sensor_id}`
-
-**Parameters:**
-- `sensor_id` (string, required): Unique sensor identifier
-
-**Response:**
-```json
-{
-  "sensor_id": "temp_001",
-  "location_id": "pune_central",
-  "sensor_type": "temperature",
-  "status": "active",
-  "last_seen": "2024-01-15T10:30:00Z",
-  "data_points_24h": 2880
-}
+### Real-time Weather Data
+```sql
+CREATE TABLE realtime_weather (
+    id INTEGER PRIMARY KEY,
+    timestamp DATETIME,
+    location_id TEXT,
+    temperature REAL,
+    humidity REAL,
+    pressure REAL,
+    wind_speed REAL,
+    wind_direction REAL,
+    precipitation REAL,
+    solar_radiation REAL,
+    uv_index REAL,
+    visibility REAL,
+    cloud_cover REAL,
+    feels_like REAL,
+    dew_point REAL,
+    data_source TEXT,
+    quality_score REAL
+);
 ```
 
-**Status Codes:**
-- `200 OK`: Sensor found
-- `404 Not Found`: Sensor not found
-- `500 Internal Server Error`: Server error
+### Real-time Air Quality Data
+```sql
+CREATE TABLE realtime_air_quality (
+    id INTEGER PRIMARY KEY,
+    timestamp DATETIME,
+    location_id TEXT,
+    pm25 REAL,
+    pm10 REAL,
+    no2 REAL,
+    so2 REAL,
+    co REAL,
+    o3 REAL,
+    aqi REAL,
+    aqi_category TEXT,
+    dominant_pollutant TEXT,
+    health_recommendation TEXT,
+    data_source TEXT,
+    quality_score REAL
+);
+```
+
+### Location Metadata
+```sql
+CREATE TABLE location_metadata (
+    location_id TEXT PRIMARY KEY,
+    name TEXT,
+    latitude REAL,
+    longitude REAL,
+    district TEXT,
+    zone TEXT,
+    elevation REAL,
+    population_density REAL,
+    last_updated DATETIME
+);
+```
 
 ---
 
-## 📡 MQTT Protocol
+## 🏗️ System Architecture
 
-### Connection Details
-- **Broker:** `localhost`
-- **Port:** `1883`
-- **Protocol:** MQTT v3.1.1
-
-### Topic Structure
+### Data Flow
 ```
-sensors/{sensor_type}/{location_id}/{sensor_id}
+External APIs → Real-time Collector → Database → ML Models → Dashboard
+     ↓              ↓                    ↓          ↓          ↓
+Open-Meteo    Smart Caching        SQLite    Predictions   Streamlit
 ```
 
-**Examples:**
-- `sensors/temperature/pune_central/temp_001`
-- `sensors/pm25/hadapsar/air_quality_001`
-- `sensors/humidity/kothrud/humid_001`
+### Components
 
-### Message Format
-```json
-{
-  "value": 28.5,
-  "unit": "C",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "quality_score": 0.95,
-  "metadata": {
-    "battery_level": 85
-  }
-}
-```
+#### 1. Real-time Data Collector (`realtime_data_collector.py`)
+- Fetches data from external APIs
+- Implements smart caching to avoid rate limits
+- Validates and processes incoming data
+- Stores data in SQLite database
 
-### Python Example
+#### 2. ML Models (`advanced_ml_models.py`)
+- Ensemble models: Random Forest, XGBoost, LightGBM
+- Deep learning: LSTM networks
+- Feature engineering and preprocessing
+- Multi-horizon predictions (1-30 days)
+
+#### 3. Dashboard (`realtime_dashboard.py`)
+- Streamlit-based web interface
+- Real-time data visualization
+- Interactive maps and charts
+- Prediction displays
+
+#### 4. System Orchestrator (`main_orchestrator.py`)
+- Coordinates all system components
+- Manages background services
+- Handles system startup and shutdown
+
+---
+
+## 📊 Data Processing Pipeline
+
+### 1. Data Collection
 ```python
-import paho.mqtt.client as mqtt
-import json
-from datetime import datetime
+# Automatic data collection every 30 minutes
+weather_data = await collector.fetch_weather_data(location_id)
+air_quality_data = await collector.fetch_air_quality_data(location_id)
+```
 
-def on_connect(client, userdata, flags, rc):
-    print(f"Connected with result code {rc}")
-
-client = mqtt.Client()
-client.on_connect = on_connect
-client.connect("localhost", 1883, 60)
-
-# Publish sensor data
-topic = "sensors/temperature/pune_central/temp_001"
-data = {
-    "value": 28.5,
-    "unit": "C",
-    "timestamp": datetime.now().isoformat(),
-    "quality_score": 0.95
+### 2. Data Processing
+```python
+# Process and enhance raw API data
+processed_data = {
+    'timestamp': current_time,
+    'location_id': location_id,
+    'temperature': raw_data['temperature_2m'],
+    'aqi_category': get_aqi_category(aqi_value),
+    'health_recommendation': get_health_recommendation(aqi_value),
+    'quality_score': calculate_quality_score(raw_data)
 }
+```
 
-client.publish(topic, json.dumps(data))
-client.loop_forever()
+### 3. ML Predictions
+```python
+# Generate predictions using ensemble models
+prediction = ml_models.predict(
+    location_id='pune_central',
+    target_variable='temperature',
+    horizon_days=7
+)
 ```
 
 ---
 
-## 📊 Data Validation
+## 🔧 Configuration
 
-### Sensor Value Ranges
-The system validates incoming sensor data against expected ranges:
+### API Configuration
+```python
+API_CONFIG = {
+    'open_meteo': {
+        'weather_url': 'https://api.open-meteo.com/v1/forecast',
+        'air_quality_url': 'https://air-quality-api.open-meteo.com/v1/air-quality'
+    },
+    'rate_limit': 10000,  # requests per day
+    'timeout': 30
+}
+```
 
-| Sensor Type | Min Value | Max Value | Unit |
-|-------------|-----------|-----------|------|
-| temperature | -50 | 60 | °C |
-| humidity | 0 | 100 | % |
-| pm25 | 0 | 1000 | µg/m³ |
-| pm10 | 0 | 2000 | µg/m³ |
-| co2 | 300 | 5000 | ppm |
-| noise | 20 | 120 | dB |
-| pressure | 800 | 1200 | hPa |
-| wind_speed | 0 | 50 | m/s |
+### Real-time Configuration
+```python
+REALTIME_CONFIG = {
+    'update_interval_minutes': 30,
+    'data_retention_days': 365,
+    'max_api_calls_per_hour': 1000,
+    'enable_caching': True,
+    'cache_duration_minutes': 15
+}
+```
+
+---
+
+## 📈 Data Quality & Monitoring
 
 ### Quality Scoring
-Data quality is automatically calculated based on:
-- **Completeness**: Presence of required fields
+Each data point receives a quality score based on:
+- **Completeness**: Percentage of fields with valid data
 - **Validity**: Values within expected ranges
-- **Consistency**: Comparison with nearby sensors
 - **Timeliness**: Data freshness
+- **Consistency**: Comparison with historical patterns
+
+### Health Recommendations
+AQI-based health recommendations:
+- **0-50**: Good - Ideal for outdoor activities
+- **51-100**: Moderate - Acceptable for most people
+- **101-150**: Unhealthy for Sensitive Groups
+- **151-200**: Unhealthy - Limit outdoor activities
+- **201-300**: Very Unhealthy - Avoid outdoor activities
+- **300+**: Hazardous - Health alert
 
 ---
 
-## 🔧 Error Handling
+## 🚀 Usage Examples
 
-### Error Response Format
-```json
-{
-  "error": "Invalid sensor type",
-  "code": "INVALID_SENSOR_TYPE",
-  "details": {
-    "received": "invalid_type",
-    "supported": ["temperature", "humidity", "pm25", "pm10"]
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
+### Getting Latest Data
+```python
+from src.realtime_data_collector import RealtimeDataCollector
+
+collector = RealtimeDataCollector()
+latest_data = collector.get_latest_data('pune_central')
 ```
 
-### Common Error Codes
-- `MISSING_REQUIRED_FIELD`: Required field not provided
-- `INVALID_SENSOR_TYPE`: Unsupported sensor type
-- `INVALID_LOCATION`: Unknown location ID
-- `VALUE_OUT_OF_RANGE`: Sensor value outside valid range
-- `INVALID_TIMESTAMP`: Malformed timestamp
-- `DATABASE_ERROR`: Internal database error
+### Making Predictions
+```python
+from src.advanced_ml_models import AdvancedMLModels
 
----
-
-## 📈 Rate Limits
-
-### Current Limits
-- **HTTP API**: 1000 requests per hour per IP
-- **MQTT**: 10,000 messages per hour per client
-
-### Rate Limit Headers
-```
-X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 999
-X-RateLimit-Reset: 1642248000
+ml_models = AdvancedMLModels()
+prediction = ml_models.predict(
+    location_id='pune_central',
+    target_variable='pm25',
+    horizon_days=3
+)
 ```
 
----
-
-## 🔮 Future API Features
-
-### Planned Endpoints
-- `GET /api/predictions/{location_id}` - Get predictions for location
-- `GET /api/data/{location_id}` - Get historical data
-- `POST /api/alerts` - Configure alerts
-- `GET /api/health` - System health check
-
-### Authentication (Coming Soon)
+### Running Dashboard
 ```bash
-curl -X POST http://localhost:5000/api/sensor-data \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"sensor_type": "temperature", ...}'
+# Start the complete system
+python run_system.py
+
+# Dashboard only
+python run_system.py --mode dashboard
 ```
 
 ---
 
 ## 📞 Support
 
-For API support:
-- Create an issue on GitHub
-- Check the troubleshooting section in README.md
-- Review system logs for error details
+For technical questions about the system architecture or data sources:
+- Check the main [README.md](../README.md) for setup instructions
+- Review the [CONTRIBUTING.md](../CONTRIBUTING.md) for development guidelines
+- Create an issue on GitHub for specific problems
