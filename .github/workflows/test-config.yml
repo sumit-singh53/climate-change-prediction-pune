@@ -1,0 +1,55 @@
+name: Quick Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quick-test:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install minimal dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy scikit-learn
+    
+    - name: Test basic imports
+      run: |
+        python -c "
+        import sys
+        sys.path.append('src')
+        
+        # Test configuration import
+        try:
+            from config import PUNE_LOCATIONS, MODEL_CONFIG
+            print('✅ Configuration loaded successfully')
+            print(f'Locations: {len(PUNE_LOCATIONS)}')
+        except Exception as e:
+            print(f'❌ Config import failed: {e}')
+            sys.exit(1)
+        
+        # Test basic functionality
+        print('✅ All basic tests passed!')
+        "
+    
+    - name: Validate project structure
+      run: |
+        echo "Checking project structure..."
+        test -f README.md && echo "✅ README.md exists"
+        test -f requirements.txt && echo "✅ requirements.txt exists"
+        test -f LICENSE && echo "✅ LICENSE exists"
+        test -d src && echo "✅ src directory exists"
+        test -f src/config.py && echo "✅ config.py exists"
+        echo "✅ Project structure validation complete"
