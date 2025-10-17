@@ -87,7 +87,7 @@ jobs:
     
     - name: Run system validation tests
       run: |
-        python test_system.py
+        python simple_test.py
       env:
         PYTHONPATH: ${{ github.workspace }}
     
