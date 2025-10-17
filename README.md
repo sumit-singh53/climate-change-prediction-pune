@@ -12,9 +12,9 @@ A comprehensive, enterprise-grade climate change and air quality prediction syst
 
 ## ✨ Live Demo
 
-🌐 **Dashboard**: [View Live Demo](http://your-demo-url.com)  
+🌐 **Repository**: [GitHub Repository](https://github.com/sumit-singh53/climate-change-prediction-pune)  
 📊 **API Docs**: [Interactive API Documentation](docs/API.md)  
-🎥 **Video Demo**: [Watch on YouTube](https://youtube.com/your-demo)
+🚀 **Quick Start**: [Setup Guide](GITHUB_SETUP.md)
 
 ## 🌟 Features
 
@@ -88,7 +88,7 @@ A comprehensive, enterprise-grade climate change and air quality prediction syst
 
 ### One-Line Setup
 ```bash
-git clone https://github.com/YOUR_USERNAME/climate-change-prediction-pune.git && cd climate-change-prediction-pune && python run_system.py
+git clone https://github.com/sumit-singh53/climate-change-prediction-pune.git && cd climate-change-prediction-pune && python run_system.py
 ```
 
 ### Manual Setup

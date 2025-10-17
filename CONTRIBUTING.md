@@ -12,7 +12,7 @@ Thank you for your interest in contributing to this project! This document provi
 ### 2. Development Setup
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/climate-change-prediction-pune.git
+git clone https://github.com/sumit-singh53/climate-change-prediction-pune.git
 cd climate-change-prediction-pune
 
 # Create virtual environment

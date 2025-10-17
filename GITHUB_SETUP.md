@@ -63,11 +63,11 @@ git commit -m "🎉 Initial commit: Enhanced Climate & AQI Prediction System
 
 ### Step 6: Connect to GitHub
 
-Replace `YOUR_USERNAME` with your actual GitHub username:
+Your GitHub repository:
 
 ```bash
 # Add GitHub repository as remote origin
-git remote add origin https://github.com/YOUR_USERNAME/climate-change-prediction-pune.git
+git remote add origin https://github.com/sumit-singh53/climate-change-prediction-pune.git
 ```
 
 ### Step 7: Push to GitHub
@@ -179,4 +179,4 @@ Add this to your README.md:
 
 Your enhanced climate prediction system is now live on GitHub and ready to showcase your skills to the world!
 
-Repository URL: `https://github.com/YOUR_USERNAME/climate-change-prediction-pune`
+Repository URL: `https://github.com/sumit-singh53/climate-change-prediction-pune`
