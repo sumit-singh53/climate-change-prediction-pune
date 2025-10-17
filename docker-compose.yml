@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  climate-prediction:
+    build: .
+    container_name: climate-prediction-system
+    ports:
+      - "8501:8501"  # Streamlit dashboard
+      - "5000:5000"  # IoT API
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    environment:
+      - PYTHONPATH=/app
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    networks:
+      - climate-network
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    restart: unless-stopped
+    networks:
+      - climate-network
+
+volumes:
+  mosquitto_data:
+  mosquitto_logs:
+
+networks:
+  climate-network:
+    driver: bridge
