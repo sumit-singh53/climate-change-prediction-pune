@@ -92,13 +92,13 @@ def start_system(mode='full', simulate_sensors=True, port=8501):
     if mode == 'full':
         print("🌟 Starting complete system with all components...")
         print("📊 Dashboard will be available at: http://localhost:8501")
-        print("🔌 IoT API will be available at: http://localhost:5000")
-        print("📡 MQTT broker expected at: localhost:1883")
+        print("📡 Real-time data collection every 30 minutes")
+        print("🤖 ML predictions based on live API data")
         
         cmd = [sys.executable, 'main_orchestrator.py', '--mode', 'full']
         if simulate_sensors:
-            cmd.append('--simulate-sensors')
-            print("🤖 Sensor simulation enabled for testing")
+            cmd.append('--collect-initial-data')
+            print("📊 Initial data collection enabled")
     
     elif mode == 'dashboard':
         print("📊 Starting dashboard only...")
@@ -144,9 +144,9 @@ Examples:
     )
     
     parser.add_argument(
-        '--no-simulate',
+        '--no-initial-data',
         action='store_true',
-        help='Disable sensor simulation (default: enabled)'
+        help='Skip initial data collection (default: enabled)'
     )
     
     parser.add_argument(
@@ -186,7 +186,7 @@ Examples:
     # Start system
     start_system(
         mode=args.mode,
-        simulate_sensors=not args.no_simulate,
+        simulate_sensors=not args.no_initial_data,
         port=args.port
     )
 

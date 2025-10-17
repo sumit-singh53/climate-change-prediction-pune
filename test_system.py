@@ -9,61 +9,41 @@ import requests
 import json
 from datetime import datetime
 
-def test_iot_api():
-    """Test IoT data submission via HTTP API"""
-    print("🔌 Testing IoT API integration...")
+async def test_realtime_collection():
+    """Test real-time data collection functionality"""
+    print("📡 Testing real-time data collection...")
     
-    # Skip API tests in CI/CD environment
-    import os
-    if os.getenv('GITHUB_ACTIONS'):
-        print("🔄 Skipping IoT API tests in CI/CD environment")
-        return True
-    
-    # Sample sensor data for different locations
-    test_data = [
-        {
-            "sensor_type": "temperature",
-            "location_id": "pune_central",
-            "sensor_id": "temp_001",
-            "value": 28.5,
-            "unit": "C",
-            "timestamp": datetime.now().isoformat(),
-            "quality_score": 0.95
-        },
-        {
-            "sensor_type": "pm25",
-            "location_id": "hadapsar",
-            "sensor_id": "air_001",
-            "value": 45.2,
-            "unit": "µg/m³",
-            "timestamp": datetime.now().isoformat(),
-            "quality_score": 0.88
-        },
-        {
-            "sensor_type": "humidity",
-            "location_id": "kothrud",
-            "sensor_id": "humid_001",
-            "value": 65.3,
-            "unit": "%",
-            "timestamp": datetime.now().isoformat(),
-            "quality_score": 0.92
-        }
-    ]
-    
-    # Try to submit data to IoT API
-    api_url = "http://localhost:5000/api/sensor-data"
-    
-    for data in test_data:
+    try:
+        from src.realtime_data_collector import RealtimeDataCollector
+        
+        collector = RealtimeDataCollector()
+        print("✅ Real-time collector initialized successfully")
+        
+        # Skip actual API calls in CI/CD environment
+        import os
+        if os.getenv('GITHUB_ACTIONS'):
+            print("🔄 Skipping API calls in CI/CD environment")
+            return True
+        
+        # Test collecting data for one location
+        print("🌍 Testing real-time data collection for Pune Central...")
         try:
-            response = requests.post(api_url, json=data, timeout=5)
-            if response.status_code == 200:
-                print(f"✅ Successfully submitted {data['sensor_type']} data from {data['location_id']}")
-            else:
-                print(f"⚠️ API not available yet (expected during initial setup)")
-        except requests.exceptions.RequestException:
-            print(f"⚠️ IoT API not running yet - this is normal during initial setup")
-    
-    return True
+            weather_data = await collector.fetch_weather_data('pune_central')
+            air_quality_data = await collector.fetch_air_quality_data('pune_central')
+            
+            if weather_data:
+                print(f"✅ Successfully collected weather data: {weather_data.get('temperature', 'N/A')}°C")
+            if air_quality_data:
+                print(f"✅ Successfully collected air quality data: AQI {air_quality_data.get('aqi', 'N/A')}")
+                
+        except Exception as api_error:
+            print(f"⚠️ API call failed (expected in CI/CD): {api_error}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"⚠️ Real-time collection test failed: {e}")
+        return False
 
 async def test_data_collection():
     """Test data collection functionality"""
@@ -153,7 +133,7 @@ def show_system_info():
     print("\n🎯 KEY FEATURES:")
     print("✅ High-accuracy ensemble ML models (RF, XGBoost, LightGBM, LSTM)")
     print("✅ 8 strategic locations across Pune metropolitan area")
-    print("✅ Real-time IoT sensor integration (MQTT + HTTP)")
+    print("✅ Real-time API data collection with caching")
     print("✅ Interactive dashboard with live updates")
     print("✅ Multi-horizon predictions (1-30 days)")
     print("✅ Location-wise environmental analysis")
@@ -183,7 +163,7 @@ async def main():
     test_locations()
     test_ml_models()
     await test_data_collection()
-    test_iot_api()
+    await test_realtime_collection()
     
     print("\n" + "="*60)
     print("✅ SYSTEM TESTS COMPLETED!")
@@ -191,9 +171,9 @@ async def main():
     
     print("\n📋 NEXT STEPS:")
     print("1. 🌐 Open http://localhost:8501 to view the dashboard")
-    print("2. 🔌 IoT sensors can submit data to http://localhost:5000/api/sensor-data")
-    print("3. 📡 MQTT sensors can publish to localhost:1883")
-    print("4. 🤖 Sensor simulation is running automatically")
+    print("2. 📊 Real-time data is collected automatically every 30 minutes")
+    print("3. 🤖 ML models provide predictions based on current data")
+    print("4. 📈 Historical trends are available for analysis")
     
     print("\n💡 USAGE EXAMPLES:")
     print("   # Start full system with IoT simulation")

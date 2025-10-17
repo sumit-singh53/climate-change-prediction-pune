@@ -11,9 +11,9 @@ import logging
 from datetime import datetime
 from typing import Dict, Any
 
-from config import MODEL_CONFIG, IOT_CONFIG
+from config import MODEL_CONFIG, REALTIME_CONFIG
 from enhanced_data_collector import EnhancedDataCollector
-from iot_integration import IoTDataCollector, SensorSimulator
+from realtime_data_collector import RealtimeDataCollector
 from advanced_ml_models import AdvancedMLModels
 from realtime_dashboard import RealtimeDashboard
 
@@ -23,7 +23,7 @@ class SystemOrchestrator:
     def __init__(self):
         # Initialize components
         self.data_collector = EnhancedDataCollector()
-        self.iot_collector = IoTDataCollector()
+        self.realtime_collector = RealtimeDataCollector()
         self.ml_models = AdvancedMLModels()
         self.dashboard = RealtimeDashboard()
         
@@ -41,7 +41,7 @@ class SystemOrchestrator:
         # System status
         self.system_status = {
             'data_collection': 'stopped',
-            'iot_collection': 'stopped',
+            'realtime_collection': 'stopped',
             'model_training': 'stopped',
             'dashboard': 'stopped'
         }
@@ -63,27 +63,18 @@ class SystemOrchestrator:
             self.logger.error(f"Data collection error: {e}")
             self.system_status['data_collection'] = 'error'
     
-    def run_iot_collection(self):
-        """Run IoT data collection service"""
-        self.logger.info("Starting IoT collection service...")
-        self.system_status['iot_collection'] = 'running'
+    async def run_realtime_collection(self):
+        """Run real-time data collection service"""
+        self.logger.info("Starting real-time data collection service...")
+        self.system_status['realtime_collection'] = 'running'
         
         try:
-            # Start MQTT listener
-            self.iot_collector.start_mqtt_listener()
-            
-            # Start HTTP server in a separate thread
-            def start_http_server():
-                self.iot_collector.start_http_server(host='0.0.0.0', port=5000)
-            
-            http_thread = threading.Thread(target=start_http_server, daemon=True)
-            http_thread.start()
-            
-            self.logger.info("IoT collection services started")
+            # Start continuous real-time data collection
+            await self.realtime_collector.run_continuous_collection()
             
         except Exception as e:
-            self.logger.error(f"IoT collection error: {e}")
-            self.system_status['iot_collection'] = 'error'
+            self.logger.error(f"Real-time collection error: {e}")
+            self.system_status['realtime_collection'] = 'error'
     
     def run_model_training(self):
         """Run periodic model training"""
@@ -128,19 +119,22 @@ class SystemOrchestrator:
             self.logger.error(f"Dashboard error: {e}")
             self.system_status['dashboard'] = 'error'
     
-    def start_sensor_simulation(self, duration_minutes: int = 1440):  # 24 hours default
-        """Start sensor simulation for testing"""
-        self.logger.info("Starting sensor simulation...")
+    async def start_initial_data_collection(self):
+        """Start initial data collection to populate database"""
+        self.logger.info("Starting initial data collection...")
         
-        simulator = SensorSimulator(self.iot_collector)
-        
-        def run_simulation():
-            simulator.simulate_sensors(duration_minutes)
-        
-        sim_thread = threading.Thread(target=run_simulation, daemon=True)
-        sim_thread.start()
-        
-        return simulator
+        try:
+            # Collect initial data for all locations
+            weather_data, air_quality_data = await self.realtime_collector.collect_all_locations_data()
+            
+            if weather_data or air_quality_data:
+                self.realtime_collector.save_to_database(weather_data, air_quality_data)
+                self.logger.info(f"Initial data collection completed: {len(weather_data)} weather, {len(air_quality_data)} air quality records")
+            else:
+                self.logger.warning("No initial data collected")
+                
+        except Exception as e:
+            self.logger.error(f"Initial data collection error: {e}")
     
     def get_system_status(self) -> Dict[str, Any]:
         """Get current system status"""
@@ -150,20 +144,23 @@ class SystemOrchestrator:
             'uptime': time.time() - self.start_time if hasattr(self, 'start_time') else 0
         }
     
-    def start_all_services(self, simulate_sensors: bool = True):
+    def start_all_services(self, collect_initial_data: bool = True):
         """Start all system services"""
         self.start_time = time.time()
         self.logger.info("Starting Enhanced Climate & AQI Prediction System...")
         
-        # Start IoT collection service
-        iot_thread = threading.Thread(target=self.run_iot_collection, daemon=True)
-        iot_thread.start()
+        # Start initial data collection if requested
+        if collect_initial_data:
+            asyncio.run(self.start_initial_data_collection())
         
-        # Start sensor simulation if requested
-        if simulate_sensors:
-            self.start_sensor_simulation()
+        # Start real-time collection service
+        realtime_thread = threading.Thread(
+            target=lambda: asyncio.run(self.run_realtime_collection()), 
+            daemon=True
+        )
+        realtime_thread.start()
         
-        # Start data collection service
+        # Start historical data collection service
         data_collection_thread = threading.Thread(
             target=lambda: asyncio.run(self.run_data_collection()), 
             daemon=True
@@ -197,8 +194,8 @@ def main():
     parser = argparse.ArgumentParser(description='Enhanced Climate & AQI Prediction System')
     parser.add_argument('--mode', choices=['full', 'dashboard', 'data-collection', 'training'], 
                        default='full', help='System mode to run')
-    parser.add_argument('--simulate-sensors', action='store_true', 
-                       help='Start sensor simulation for testing')
+    parser.add_argument('--collect-initial-data', action='store_true', 
+                       help='Collect initial data on startup')
     parser.add_argument('--no-dashboard', action='store_true', 
                        help='Skip dashboard startup')
     
@@ -208,7 +205,7 @@ def main():
     
     try:
         if args.mode == 'full':
-            orchestrator.start_all_services(simulate_sensors=args.simulate_sensors)
+            orchestrator.start_all_services(collect_initial_data=args.collect_initial_data)
         
         elif args.mode == 'dashboard':
             orchestrator.run_dashboard()

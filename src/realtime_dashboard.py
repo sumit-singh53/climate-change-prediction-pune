@@ -18,7 +18,7 @@ from typing import Dict, List, Optional
 
 from config import PUNE_LOCATIONS, DATABASE_CONFIG
 from advanced_ml_models import AdvancedMLModels
-from iot_integration import IoTDataCollector
+from realtime_data_collector import RealtimeDataCollector
 from enhanced_data_collector import EnhancedDataCollector
 
 # Page configuration
@@ -35,7 +35,7 @@ class RealtimeDashboard:
     def __init__(self):
         self.db_path = DATABASE_CONFIG['sqlite_path']
         self.ml_models = AdvancedMLModels()
-        self.iot_collector = IoTDataCollector()
+        self.realtime_collector = RealtimeDataCollector()
         
         # Load models if available
         try:
@@ -47,36 +47,41 @@ class RealtimeDashboard:
         """Load recent data from all sources"""
         conn = sqlite3.connect(self.db_path)
         
-        # Weather data
+        # Real-time weather data
         weather_query = f'''
-            SELECT * FROM weather_historical 
+            SELECT * FROM realtime_weather 
             WHERE timestamp > datetime('now', '-{hours} hours')
             ORDER BY timestamp DESC
         '''
         weather_df = pd.read_sql_query(weather_query, conn)
         
-        # Air quality data
+        # Real-time air quality data
         aqi_query = f'''
-            SELECT * FROM air_quality_historical 
+            SELECT * FROM realtime_air_quality 
             WHERE timestamp > datetime('now', '-{hours} hours')
             ORDER BY timestamp DESC
         '''
         aqi_df = pd.read_sql_query(aqi_query, conn)
         
-        # IoT sensor data
-        iot_df = self.iot_collector.get_recent_data(hours=hours)
+        # Historical data for comparison
+        historical_weather_query = f'''
+            SELECT * FROM weather_historical 
+            WHERE timestamp > datetime('now', '-{hours} hours')
+            ORDER BY timestamp DESC
+        '''
+        historical_weather_df = pd.read_sql_query(historical_weather_query, conn)
         
         conn.close()
         
         # Convert timestamps
-        for df in [weather_df, aqi_df, iot_df]:
+        for df in [weather_df, aqi_df, historical_weather_df]:
             if not df.empty and 'timestamp' in df.columns:
                 df['timestamp'] = pd.to_datetime(df['timestamp'])
         
         return {
             'weather': weather_df,
             'aqi': aqi_df,
-            'iot': iot_df
+            'historical_weather': historical_weather_df
         }
     
     def create_location_map(self, data: Dict[str, pd.DataFrame]) -> go.Figure:

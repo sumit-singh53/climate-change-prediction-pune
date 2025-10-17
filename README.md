@@ -29,11 +29,11 @@ A comprehensive, enterprise-grade climate change and air quality prediction syst
 - **Zone-based Analysis**: Central, North, East, West, Northwest, South zones
 - **Micro-climate Modeling**: Location-specific environmental factors
 
-### 🔗 IoT Integration
-- **Real-time Sensor Data**: Temperature, humidity, PM2.5, PM10, CO2, noise
-- **MQTT Protocol**: Efficient real-time data streaming
-- **HTTP API**: RESTful endpoints for sensor data submission
+### 🔗 Real-time Data Collection
+- **Live API Integration**: Continuous data from weather and air quality APIs
+- **Smart Caching**: Efficient data retrieval with configurable cache duration
 - **Data Quality Monitoring**: Automatic validation and quality scoring
+- **Multi-source Integration**: Weather and air quality from reliable sources
 
 ### 📊 Real-time Dashboard
 - **Live Monitoring**: Real-time environmental data visualization
@@ -113,8 +113,8 @@ python run_system.py
 
 3. **Access the dashboard**
    - 🌐 **Dashboard**: http://localhost:8501
-   - 🔌 **IoT API**: http://localhost:5000
-   - 📡 **MQTT**: localhost:1883
+   - 📊 **Real-time Updates**: Every 30 minutes
+   - 🤖 **Live Predictions**: Based on current data
 
 #### Alternative Setup
 ```bash

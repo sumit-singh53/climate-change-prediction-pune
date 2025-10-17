@@ -36,19 +36,13 @@ API_CONFIG = {
     'timeout': 30
 }
 
-# IoT Configuration
-IOT_CONFIG = {
-    'mqtt_broker': 'localhost',
-    'mqtt_port': 1883,
-    'sensor_topics': {
-        'temperature': 'sensors/temperature',
-        'humidity': 'sensors/humidity',
-        'pm25': 'sensors/pm25',
-        'pm10': 'sensors/pm10',
-        'co2': 'sensors/co2',
-        'noise': 'sensors/noise'
-    },
-    'data_retention_days': 365
+# Real-time Data Configuration
+REALTIME_CONFIG = {
+    'update_interval_minutes': 30,  # How often to fetch new data
+    'data_retention_days': 365,
+    'max_api_calls_per_hour': 1000,
+    'enable_caching': True,
+    'cache_duration_minutes': 15
 }
 
 # Model Configuration
@@ -71,7 +65,7 @@ DATABASE_CONFIG = {
     'tables': {
         'weather_data': 'weather_historical',
         'air_quality_data': 'air_quality_historical',
-        'iot_data': 'iot_sensor_data',
+        'realtime_data': 'realtime_api_data',
         'predictions': 'model_predictions',
         'model_performance': 'model_metrics'
     }
@@ -83,7 +77,7 @@ PATHS = {
         'raw': 'data/raw',
         'processed': 'data/processed',
         'external': 'data/external',
-        'iot': 'data/iot'
+        'realtime': 'data/realtime'
     },
     'models': 'outputs/models',
     'logs': 'outputs/logs',
