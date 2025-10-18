@@ -134,8 +134,7 @@ def show_system_info():
     print("🌟 ENHANCED CLIMATE & AQI PREDICTION SYSTEM")
     print("="*60)
     print("📊 Dashboard: http://localhost:8501")
-    print("🔌 IoT API: http://localhost:5000")
-    print("📡 MQTT: localhost:1883")
+    print("🌟 Enhanced Dashboard: http://localhost:8502")
     print("="*60)
     
     print("\n🎯 KEY FEATURES:")

@@ -48,7 +48,6 @@ def setup_directories():
         'data/raw',
         'data/processed', 
         'data/external',
-        'data/iot',
         'data/api',
         'outputs/models',
         'outputs/figures',

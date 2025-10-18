@@ -82,7 +82,7 @@ jobs:
     
     - name: Create necessary directories
       run: |
-        mkdir -p data/raw data/processed data/external data/iot
+        mkdir -p data/raw data/processed data/external data/api
         mkdir -p outputs/models outputs/logs outputs/figures
     
     - name: Run system validation tests
@@ -203,7 +203,7 @@ jobs:
     
     - name: Create test environment
       run: |
-        mkdir -p data/raw data/processed data/external data/iot
+        mkdir -p data/raw data/processed data/external data/api
         mkdir -p outputs/models outputs/logs outputs/figures
     
     - name: Test data collection module

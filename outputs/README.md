@@ -47,9 +47,9 @@ Examples:
 
 ### Log Files
 - **System Logs**: `system.log` - Overall system operations
-- **Data Collection**: `data_collection.log` - API and sensor data
+- **Data Collection**: `data_collection.log` - API data collection
 - **Model Training**: `training.log` - ML model development
-- **IoT Integration**: `iot.log` - Sensor communication
+- **Optimization**: `optuna.log` - Hyperparameter optimization
 - **Dashboard**: `dashboard.log` - Web interface operations
 
 ### Log Rotation

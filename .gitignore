@@ -134,7 +134,6 @@ data/raw/
 data/processed/
 data/external/
 data/api/
-data/iot/
 outputs/models/
 outputs/logs/
 outputs/figures/

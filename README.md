@@ -45,16 +45,16 @@ A comprehensive, enterprise-grade climate change and air quality prediction syst
 ## 🏗️ System Architecture
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   IoT Sensors   │    │  External APIs  │    │  Manual Data    │
-│                 │    │                 │    │                 │
-│ • Temperature   │    │ • Open-Meteo    │    │ • Calibration   │
-│ • Humidity      │    │ • Weather APIs  │    │ • Validation    │
-│ • PM2.5/PM10    │    │ • AQI Services  │    │ • Historical    │
-│ • CO2, Noise    │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
+┌─────────────────┐    ┌─────────────────┐
+│  External APIs  │    │ Historical Data │
+│                 │    │                 │
+│ • Open-Meteo    │    │ • Weather Data  │
+│ • Weather APIs  │    │ • Air Quality   │
+│ • AQI Services  │    │ • Climate Data  │
+│ • Real-time     │    │ • Validation    │
+└─────────────────┘    └─────────────────┘
+         │                       │
+         └───────────────────────┘
                                  │
                     ┌─────────────────┐
                     │ Data Collection │
@@ -251,20 +251,22 @@ climate_change_prediction_pune/
 ├── src/
 │   ├── config.py                 # System configuration
 │   ├── enhanced_data_collector.py # Multi-source data collection
-│   ├── iot_integration.py        # IoT sensor integration
+│   ├── enhanced_ml_models.py     # Enhanced ML models with Optuna
 │   ├── advanced_ml_models.py     # ML models and training
 │   ├── realtime_dashboard.py     # Streamlit dashboard
+│   ├── enhanced_dashboard.py     # Enhanced dashboard
 │   └── main_orchestrator.py      # System orchestrator
 ├── data/
 │   ├── raw/                      # Raw data files
 │   ├── processed/                # Processed datasets
 │   ├── external/                 # External data sources
-│   └── iot/                      # IoT sensor data
+│   └── api/                      # API response cache
 ├── outputs/
 │   ├── models/                   # Trained ML models
 │   ├── figures/                  # Generated plots
 │   └── logs/                     # System logs
 ├── notebooks/                    # Jupyter notebooks
+├── train_enhanced_models.py      # Enhanced model training script
 ├── requirements.txt              # Python dependencies
 └── README.md                     # This file
 ```

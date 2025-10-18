@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p data/raw data/processed data/external data/iot \
+RUN mkdir -p data/raw data/processed data/external data/api \
     outputs/models outputs/logs outputs/figures
 
 # Set environment variables

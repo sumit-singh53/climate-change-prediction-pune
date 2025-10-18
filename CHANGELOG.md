@@ -21,11 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Zone-based analysis (Central, North, East, West, Northwest, South)
   - Location-specific environmental modeling
 
-- **IoT Integration**
-  - Real-time sensor data collection via MQTT and HTTP
-  - Support for temperature, humidity, PM2.5, PM10, CO2, noise sensors
-  - Automatic data quality validation and scoring
-  - Built-in sensor simulation for testing
+- **Enhanced ML Models**
+  - Advanced feature engineering with lag features and rolling statistics
+  - Optuna hyperparameter optimization for better accuracy
+  - Support for XGBoost, LightGBM, Random Forest, LSTM models
+  - Ensemble methods with weighted voting
 
 - **Real-time Dashboard**
   - Interactive Streamlit-based web interface
@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Data quality metrics display
 
 - **Enhanced Data Collection**
-  - Multi-source data integration (APIs, IoT, manual)
+  - Multi-source API data integration
   - Asynchronous data fetching for better performance
   - Comprehensive data preprocessing pipeline
   - SQLite database for efficient data storage
@@ -70,8 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical Details
 - **Languages**: Python 3.8+
 - **ML Libraries**: scikit-learn, XGBoost, LightGBM, TensorFlow/Keras
-- **Web Framework**: Streamlit, Flask
-- **IoT Protocols**: MQTT (paho-mqtt), HTTP REST API
+- **Web Framework**: Streamlit
+- **Optimization**: Optuna for hyperparameter tuning
 - **Visualization**: Plotly, interactive maps
 - **Database**: SQLite with pandas integration
 - **Async Processing**: asyncio, aiohttp

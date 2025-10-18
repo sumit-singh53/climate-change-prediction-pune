@@ -9,7 +9,6 @@ data/
 ├── raw/           # Raw data from APIs and sensors
 ├── processed/     # Cleaned and processed data
 ├── external/      # External datasets
-├── iot/          # IoT sensor data
 └── api/          # API response cache
 ```
 
@@ -27,11 +26,11 @@ data/
 - **Parameters**: PM2.5, PM10, NO2, SO2, CO, O3, AQI
 - **Update Frequency**: Hourly
 
-### 3. IoT Sensor Data
-- **Source**: Real-time sensors via MQTT/HTTP
-- **Coverage**: Variable based on deployed sensors
-- **Parameters**: All environmental parameters
-- **Update Frequency**: Real-time (30-second intervals)
+### 3. Historical Climate Data
+- **Source**: External climate datasets
+- **Coverage**: Long-term historical data for Pune region
+- **Parameters**: Climate trends and patterns
+- **Update Frequency**: Static historical data
 
 ## Data Format
 

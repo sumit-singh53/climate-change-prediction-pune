@@ -38,8 +38,7 @@ python run_system.py
 
 ### Access Points
 - **Dashboard**: http://localhost:8501
-- **IoT API**: http://localhost:5000
-- **MQTT**: localhost:1883
+- **Enhanced Dashboard**: http://localhost:8502
 
 ---
 
@@ -65,11 +64,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p data/raw data/processed data/external data/iot \
+RUN mkdir -p data/raw data/processed data/external data/api \
     outputs/models outputs/logs outputs/figures
 
 # Expose ports
-EXPOSE 8501 5000 1883
+EXPOSE 8501 8502
 
 # Run application
 CMD ["python", "run_system.py", "--mode", "full"]
@@ -84,8 +83,7 @@ services:
     build: .
     ports:
       - "8501:8501"  # Streamlit dashboard
-      - "5000:5000"  # IoT API
-      - "1883:1883"  # MQTT
+      - "8502:8502"  # Enhanced dashboard
     volumes:
       - ./data:/app/data
       - ./outputs:/app/outputs
