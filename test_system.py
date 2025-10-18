@@ -14,7 +14,9 @@ async def test_realtime_collection():
     print("📡 Testing real-time data collection...")
     
     try:
-        from src.realtime_data_collector import RealtimeDataCollector
+        import sys
+        sys.path.append('src')
+        from realtime_data_collector import RealtimeDataCollector
         
         collector = RealtimeDataCollector()
         print("✅ Real-time collector initialized successfully")
@@ -50,7 +52,9 @@ async def test_data_collection():
     print("📊 Testing data collection...")
     
     try:
-        from src.enhanced_data_collector import EnhancedDataCollector
+        import sys
+        sys.path.append('src')
+        from enhanced_data_collector import EnhancedDataCollector
         
         collector = EnhancedDataCollector()
         print("✅ Data collector initialized successfully")
@@ -84,14 +88,16 @@ def test_ml_models():
     print("🧠 Testing ML models...")
     
     try:
-        from src.advanced_ml_models import AdvancedMLModels
+        import sys
+        sys.path.append('src')
+        from advanced_ml_models import AdvancedMLModels
         
         ml_models = AdvancedMLModels()
         print("✅ ML models initialized successfully")
         
         # Test model structure
         print("📋 Available model configurations:")
-        from src.config import MODEL_CONFIG
+        from config import MODEL_CONFIG
         
         print(f"   - Target variables: {MODEL_CONFIG['target_variables']}")
         print(f"   - Ensemble models: {MODEL_CONFIG['ensemble_models']}")
@@ -108,7 +114,9 @@ def test_locations():
     print("📍 Testing location configuration...")
     
     try:
-        from src.config import PUNE_LOCATIONS
+        import sys
+        sys.path.append('src')
+        from config import PUNE_LOCATIONS
         
         print(f"✅ Configured {len(PUNE_LOCATIONS)} monitoring locations:")
         for loc_id, loc_config in PUNE_LOCATIONS.items():
@@ -139,12 +147,14 @@ def show_system_info():
     print("✅ Location-wise environmental analysis")
     
     print("\n📍 MONITORING LOCATIONS:")
-    from src.config import PUNE_LOCATIONS
+    import sys
+    sys.path.append('src')
+    from config import PUNE_LOCATIONS
     for loc_id, loc_config in PUNE_LOCATIONS.items():
         print(f"   🌍 {loc_config.name} - {loc_config.zone} Zone")
     
     print("\n🔬 PREDICTED VARIABLES:")
-    from src.config import MODEL_CONFIG
+    from config import MODEL_CONFIG
     for var in MODEL_CONFIG['target_variables']:
         print(f"   📈 {var.replace('_', ' ').title()}")
 
