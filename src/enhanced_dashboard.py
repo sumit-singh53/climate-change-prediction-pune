@@ -236,8 +236,8 @@ class EnhancedDashboard:
                 size = 15
             
             fig.add_trace(go.Scattermapbox(
-                lat=[loc_config.latitude],
-                lon=[loc_config.longitude],
+                lat=[loc_config.lat],
+                lon=[loc_config.lon],
                 mode='markers',
                 marker=dict(size=size, color=color),
                 text=f"<b>{loc_config.name}</b><br>Temp: {temp}°C<br>AQI: {aqi}",
