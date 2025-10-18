@@ -17,3 +17,6 @@ lightgbm
 aiohttp
 joblib
 schedule
+optuna
+paho-mqtt
+flask

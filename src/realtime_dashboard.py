@@ -571,8 +571,15 @@ class RealtimeDashboard:
             st.metric("AQI Data Completeness", f"{aqi_completeness:.1f}%")
 
         with quality_col3:
-            iot_data_points = len(data["iot"]) if not data["iot"].empty else 0
-            st.metric("IoT Data Points", f"{iot_data_points}")
+            # Check if IoT data exists, otherwise use weather data count
+            if "iot" in data and not data["iot"].empty:
+                iot_data_points = len(data["iot"])
+            else:
+                # Use total data points from weather and aqi as alternative
+                weather_points = len(data["weather"]) if not data["weather"].empty else 0
+                aqi_points = len(data["aqi"]) if not data["aqi"].empty else 0
+                iot_data_points = weather_points + aqi_points
+            st.metric("Total Data Points", f"{iot_data_points}")
 
         # Auto-refresh
         if auto_refresh:
