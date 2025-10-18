@@ -1,6 +1,8 @@
-import requests
-import pandas as pd
 from datetime import datetime
+
+import pandas as pd
+import requests
+
 
 def fetch_live_data(lat=18.52, lon=73.85):
     """
@@ -16,8 +18,13 @@ def fetch_live_data(lat=18.52, lon=73.85):
     weather_params = {
         "latitude": lat,
         "longitude": lon,
-        "current": ["temperature_2m", "relative_humidity_2m", "precipitation", "shortwave_radiation"],
-        "timezone": "auto"
+        "current": [
+            "temperature_2m",
+            "relative_humidity_2m",
+            "precipitation",
+            "shortwave_radiation",
+        ],
+        "timezone": "auto",
     }
     w = requests.get(weather_url, params=weather_params).json()
     wdata = w.get("current", {})
@@ -26,8 +33,15 @@ def fetch_live_data(lat=18.52, lon=73.85):
     air_params = {
         "latitude": lat,
         "longitude": lon,
-        "current": ["pm2_5", "pm10", "carbon_monoxide", "nitrogen_dioxide", "sulphur_dioxide", "ozone"],
-        "timezone": "auto"
+        "current": [
+            "pm2_5",
+            "pm10",
+            "carbon_monoxide",
+            "nitrogen_dioxide",
+            "sulphur_dioxide",
+            "ozone",
+        ],
+        "timezone": "auto",
     }
     a = requests.get(air_url, params=air_params).json()
     adata = a.get("current", {})

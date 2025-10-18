@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
+
 def load_grd_file(file_path):
     """
     Load IMD .grd rainfall data and reshape to (days, lat, lon).
@@ -19,6 +20,7 @@ def load_grd_file(file_path):
     data[data < -900] = np.nan  # Replace -999 with NaN
     return data
 
+
 def extract_pune_rainfall(data):
     """
     Extract rainfall for Pune (18.52N, 73.85E) from IMD grid.
@@ -33,6 +35,7 @@ def extract_pune_rainfall(data):
     print(f"Pune rainfall extracted for {len(pune_rain)} days.")
     return pune_rain
 
+
 def create_pune_dataframe(rainfall_array, start_year=2024):
     """
     Create daily rainfall DataFrame for Pune.
@@ -44,6 +47,7 @@ def create_pune_dataframe(rainfall_array, start_year=2024):
     df.to_csv(output_path, index=False)
     print(f"✅ Pune daily rainfall saved to {output_path}")
     return df
+
 
 def merge_multi_years_manual(years, folder="data/raw/"):
     """
@@ -58,21 +62,28 @@ def merge_multi_years_manual(years, folder="data/raw/"):
 
         data = load_grd_file(file_path)
         pune_rain = extract_pune_rainfall(data)
-        df = pd.DataFrame({
-            "date": pd.date_range(f"{year}-01-01", periods=len(pune_rain)),
-            "rainfall_mm": pune_rain
-        })
+        df = pd.DataFrame(
+            {
+                "date": pd.date_range(f"{year}-01-01", periods=len(pune_rain)),
+                "rainfall_mm": pune_rain,
+            }
+        )
         all_years.append(df)
         print(f"✅ Processed year {year}")
 
     merged = pd.concat(all_years).reset_index(drop=True)
     merged.to_csv("data/processed/pune_rainfall_2014_2024.csv", index=False)
-    print("✅ Combined multi-year rainfall saved to data/processed/pune_rainfall_2014_2024.csv")
+    print(
+        "✅ Combined multi-year rainfall saved to data/processed/pune_rainfall_2014_2024.csv"
+    )
     return merged
 
+
 import os
+
 import numpy as np
 import pandas as pd
+
 
 def merge_imd_years(start_year=1951, end_year=2024, folder="data/raw/"):
     """
@@ -85,23 +96,33 @@ def merge_imd_years(start_year=1951, end_year=2024, folder="data/raw/"):
             print(f"⚠️ File missing: {file_path}")
             continue
 
-        from src.preprocessing import load_grd_file, extract_pune_rainfall
+        from src.preprocessing import extract_pune_rainfall, load_grd_file
+
         data = load_grd_file(file_path)
         pune_rain = extract_pune_rainfall(data)
-        df = pd.DataFrame({
-            "date": pd.date_range(f"{year}-01-01", periods=len(pune_rain)),
-            "rainfall_mm": pune_rain
-        })
+        df = pd.DataFrame(
+            {
+                "date": pd.date_range(f"{year}-01-01", periods=len(pune_rain)),
+                "rainfall_mm": pune_rain,
+            }
+        )
         all_years.append(df)
         print(f"✅ Processed IMD data for {year}")
 
     merged = pd.concat(all_years).reset_index(drop=True)
     merged.dropna(subset=["rainfall_mm"], inplace=True)
     merged.to_csv("data/processed/pune_rainfall_1951_2024.csv", index=False)
-    print("✅ IMD rainfall merged and saved to data/processed/pune_rainfall_1951_2024.csv")
+    print(
+        "✅ IMD rainfall merged and saved to data/processed/pune_rainfall_1951_2024.csv"
+    )
     return merged
 
-def merge_imd_nasa(imd_path, nasa_path, output_path="data/processed/pune_climate_combined_1951_2024.csv"):
+
+def merge_imd_nasa(
+    imd_path,
+    nasa_path,
+    output_path="data/processed/pune_climate_combined_1951_2024.csv",
+):
     """
     Merge IMD rainfall data with NASA POWER temperature, humidity, and solar radiation.
     Handles DOY or (YEAR, MO, DY) NASA formats.
@@ -120,30 +141,39 @@ def merge_imd_nasa(imd_path, nasa_path, output_path="data/processed/pune_climate
     nasa.replace(-999.0, np.nan, inplace=True)
 
     # 🧠 Handle NASA date formats robustly
-    if {'YEAR', 'MO', 'DY'}.issubset(nasa.columns):
-        nasa['date'] = pd.to_datetime(
-            nasa[['YEAR', 'MO', 'DY']].rename(columns={'YEAR': 'year', 'MO': 'month', 'DY': 'day'})
+    if {"YEAR", "MO", "DY"}.issubset(nasa.columns):
+        nasa["date"] = pd.to_datetime(
+            nasa[["YEAR", "MO", "DY"]].rename(
+                columns={"YEAR": "year", "MO": "month", "DY": "day"}
+            )
         )
-    elif {'YEAR', 'DOY'}.issubset(nasa.columns):
+    elif {"YEAR", "DOY"}.issubset(nasa.columns):
         # ✅ This is your case
-        nasa['date'] = pd.to_datetime(nasa['YEAR'].astype(str), format='%Y') + pd.to_timedelta(nasa['DOY'] - 1, unit='D')
-    elif 'YYYYMMDD' in nasa.columns:
-        nasa['date'] = pd.to_datetime(nasa['YYYYMMDD'], format='%Y%m%d')
+        nasa["date"] = pd.to_datetime(
+            nasa["YEAR"].astype(str), format="%Y"
+        ) + pd.to_timedelta(nasa["DOY"] - 1, unit="D")
+    elif "YYYYMMDD" in nasa.columns:
+        nasa["date"] = pd.to_datetime(nasa["YYYYMMDD"], format="%Y%m%d")
     else:
-        raise ValueError(f"⚠️ Unknown NASA date format. Columns found: {nasa.columns.tolist()}")
+        raise ValueError(
+            f"⚠️ Unknown NASA date format. Columns found: {nasa.columns.tolist()}"
+        )
 
     # Keep only the relevant columns
-    cols = [c for c in ['T2M', 'RH2M', 'ALLSKY_SFC_SW_DWN'] if c in nasa.columns]
-    nasa = nasa[['date'] + cols]
-    nasa.rename(columns={
-        'T2M': 'temp_C',
-        'RH2M': 'humidity_pct',
-        'ALLSKY_SFC_SW_DWN': 'solar_MJ'
-    }, inplace=True)
+    cols = [c for c in ["T2M", "RH2M", "ALLSKY_SFC_SW_DWN"] if c in nasa.columns]
+    nasa = nasa[["date"] + cols]
+    nasa.rename(
+        columns={
+            "T2M": "temp_C",
+            "RH2M": "humidity_pct",
+            "ALLSKY_SFC_SW_DWN": "solar_MJ",
+        },
+        inplace=True,
+    )
 
     # Merge both datasets
-    combined = pd.merge(nasa, imd, on='date', how='outer')
-    combined.sort_values(by='date', inplace=True)
+    combined = pd.merge(nasa, imd, on="date", how="outer")
+    combined.sort_values(by="date", inplace=True)
     combined.fillna(inplace=True)
     combined.to_csv(output_path, index=False)
     print(f"✅ Merged dataset saved to {output_path}")

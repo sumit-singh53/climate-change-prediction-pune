@@ -1,10 +1,12 @@
-import pandas as pd
 import os
+
+import pandas as pd
+
 
 def merge_final_dataset(
     climate_path="data/processed/pune_climate_with_co2.csv",
     air_path="data/processed/pune_air_quality_v3.csv",
-    save_path="data/processed/pune_final_merged.csv"
+    save_path="data/processed/pune_final_merged.csv",
 ):
     """
     Merge:
@@ -24,10 +26,7 @@ def merge_final_dataset(
     # Pivot AQ data: each parameter → separate column (averaged by date)
     print("📊 Aggregating air quality data by date and parameter...")
     aq_pivot = (
-        air_df.groupby(["date", "parameter"])["value"]
-        .mean()
-        .unstack()
-        .reset_index()
+        air_df.groupby(["date", "parameter"])["value"].mean().unstack().reset_index()
     )
 
     print(f"   → Air quality features: {aq_pivot.columns.tolist()}")
@@ -52,7 +51,9 @@ def merge_final_dataset(
 
     print(f"\n✅ Final merged dataset saved → {save_path}")
     print(f"📈 Shape: {merged.shape[0]} rows × {merged.shape[1]} columns")
-    print(f"🕒 Date range: {merged['date'].min().date()} → {merged['date'].max().date()}")
+    print(
+        f"🕒 Date range: {merged['date'].min().date()} → {merged['date'].max().date()}"
+    )
 
     return merged
 

@@ -1,6 +1,7 @@
 import os
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import requests
 
 # --------------------------
@@ -22,10 +23,18 @@ try:
     co2_raw = co2_raw.rename(columns=str.lower)
 
     # Handle column name variations
-    if "year" in co2_raw.columns and "month" in co2_raw.columns and "average" in co2_raw.columns:
-        co2 = co2_raw[["year", "month", "average"]].rename(columns={"average": "co2_ppm"})
+    if (
+        "year" in co2_raw.columns
+        and "month" in co2_raw.columns
+        and "average" in co2_raw.columns
+    ):
+        co2 = co2_raw[["year", "month", "average"]].rename(
+            columns={"average": "co2_ppm"}
+        )
     elif "decimal_date" in co2_raw.columns:
-        co2_raw[["year", "month"]] = co2_raw["decimal_date"].astype(str).str.split(".", expand=True)
+        co2_raw[["year", "month"]] = (
+            co2_raw["decimal_date"].astype(str).str.split(".", expand=True)
+        )
         co2 = co2_raw[["year", "month", "co2_ppm"]]
     else:
         raise ValueError(f"Unexpected CO₂ file format: {co2_raw.columns}")
@@ -41,10 +50,13 @@ try:
 except Exception as e:
     print("⚠️ CO₂ data fetch failed:", e)
 
+
 # -----------------------------------------
 # 3️⃣  Add Air Quality (Open-Meteo API)
 # -----------------------------------------
-def fetch_openmeteo_air_quality(lat=18.52, lon=73.85, start_date="2020-01-01", end_date="2024-12-31"):
+def fetch_openmeteo_air_quality(
+    lat=18.52, lon=73.85, start_date="2020-01-01", end_date="2024-12-31"
+):
     """
     Fetches daily air quality data for Pune from Open-Meteo Air Quality API.
     Returns DataFrame with ['date', 'pm25', 'pm10', 'no2', 'so2', 'o3', 'co'].
@@ -56,8 +68,15 @@ def fetch_openmeteo_air_quality(lat=18.52, lon=73.85, start_date="2020-01-01", e
         "longitude": lon,
         "start_date": start_date,
         "end_date": end_date,
-        "daily": ["pm10", "pm2_5", "carbon_monoxide", "nitrogen_dioxide", "sulphur_dioxide", "ozone"],
-        "timezone": "auto"
+        "daily": [
+            "pm10",
+            "pm2_5",
+            "carbon_monoxide",
+            "nitrogen_dioxide",
+            "sulphur_dioxide",
+            "ozone",
+        ],
+        "timezone": "auto",
     }
 
     r = requests.get(url, params=params)
@@ -69,14 +88,17 @@ def fetch_openmeteo_air_quality(lat=18.52, lon=73.85, start_date="2020-01-01", e
         raise ValueError("No daily data returned from Open-Meteo API")
 
     aqi_df = pd.DataFrame(data)
-    aqi_df.rename(columns={
-        "time": "date",
-        "pm2_5": "pm25",
-        "carbon_monoxide": "co",
-        "nitrogen_dioxide": "no2",
-        "sulphur_dioxide": "so2",
-        "ozone": "o3"
-    }, inplace=True)
+    aqi_df.rename(
+        columns={
+            "time": "date",
+            "pm2_5": "pm25",
+            "carbon_monoxide": "co",
+            "nitrogen_dioxide": "no2",
+            "sulphur_dioxide": "so2",
+            "ozone": "o3",
+        },
+        inplace=True,
+    )
     aqi_df["date"] = pd.to_datetime(aqi_df["date"])
 
     print(f"✅ Air quality data fetched: {len(aqi_df)} days")

@@ -24,13 +24,14 @@ If column names are unknown, you can omit them; the script will try to infer.
 import argparse
 import os
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
 
 # ---------- Utilities ----------
+
 
 def find_col(cols: List[str], keywords: List[str]) -> Optional[str]:
     """Return the first column whose lowercase name contains any keyword."""
@@ -69,14 +70,17 @@ def linear_trend_annual(series: pd.Series):
 
 # ---------- Core EDA ----------
 
-def run_eda(csv_path: Path,
-            outdir: Path,
-            date_col: Optional[str] = None,
-            temp_col: Optional[str] = None,
-            rain_col: Optional[str] = None,
-            hum_col: Optional[str] = None,
-            co2_col: Optional[str] = None,
-            daily_freq: str = "D") -> Dict[str, Optional[str]]:
+
+def run_eda(
+    csv_path: Path,
+    outdir: Path,
+    date_col: Optional[str] = None,
+    temp_col: Optional[str] = None,
+    rain_col: Optional[str] = None,
+    hum_col: Optional[str] = None,
+    co2_col: Optional[str] = None,
+    daily_freq: str = "D",
+) -> Dict[str, Optional[str]]:
     """
     Returns a mapping of the columns used for reference/reporting.
     """
@@ -94,7 +98,9 @@ def run_eda(csv_path: Path,
             date_col = df.columns[0]
 
     if not temp_col:
-        temp_col = find_col(df.columns, ["temp", "tmean", "t_avg", "tavg", "temperature"])
+        temp_col = find_col(
+            df.columns, ["temp", "tmean", "t_avg", "tavg", "temperature"]
+        )
     if not rain_col:
         rain_col = find_col(df.columns, ["rain", "precip", "prcp"])
     if not hum_col:
@@ -103,7 +109,9 @@ def run_eda(csv_path: Path,
         co2_col = find_col(df.columns, ["co2", "carbon"])
 
     # 3) Parse date & set index
-    df[date_col] = pd.to_datetime(df[date_col], errors="coerce", infer_datetime_format=True, dayfirst=False)
+    df[date_col] = pd.to_datetime(
+        df[date_col], errors="coerce", infer_datetime_format=True, dayfirst=False
+    )
     df = df.dropna(subset=[date_col]).sort_values(date_col).set_index(date_col)
     df = df[~df.index.duplicated(keep="first")]
     df = df.asfreq(daily_freq)
@@ -117,18 +125,22 @@ def run_eda(csv_path: Path,
     save_df(df, outdir / "daily_cleaned.csv")
 
     # 5) Aggregates
-    monthly = df.resample("MS").agg({
-        temp_col: "mean" if temp_col else "mean",
-        rain_col: "sum" if rain_col else "sum",
-        hum_col: "mean" if hum_col else "mean",
-        co2_col: "mean" if co2_col else "mean",
-    })
-    annual = df.resample("Y").agg({
-        temp_col: "mean" if temp_col else "mean",
-        rain_col: "sum" if rain_col else "sum",
-        hum_col: "mean" if hum_col else "mean",
-        co2_col: "mean" if co2_col else "mean",
-    })
+    monthly = df.resample("MS").agg(
+        {
+            temp_col: "mean" if temp_col else "mean",
+            rain_col: "sum" if rain_col else "sum",
+            hum_col: "mean" if hum_col else "mean",
+            co2_col: "mean" if co2_col else "mean",
+        }
+    )
+    annual = df.resample("Y").agg(
+        {
+            temp_col: "mean" if temp_col else "mean",
+            rain_col: "sum" if rain_col else "sum",
+            hum_col: "mean" if hum_col else "mean",
+            co2_col: "mean" if co2_col else "mean",
+        }
+    )
 
     # Index cosmetics for saved versions
     annual_out = annual.copy()
@@ -146,20 +158,34 @@ def run_eda(csv_path: Path,
     trends = {}
     if temp_col in annual:
         slope_dec, slope_year, delta = linear_trend_annual(annual[temp_col])
-        trends["temperature"] = {"slope_per_decade": slope_dec, "delta_first_last": delta, "units": "°C (approx)"}
+        trends["temperature"] = {
+            "slope_per_decade": slope_dec,
+            "delta_first_last": delta,
+            "units": "°C (approx)",
+        }
     if rain_col in annual:
         slope_dec, slope_year, delta = linear_trend_annual(annual[rain_col])
-        trends["rainfall"] = {"slope_per_decade": slope_dec, "delta_first_last": delta, "units": "mm (annual sum)"}
+        trends["rainfall"] = {
+            "slope_per_decade": slope_dec,
+            "delta_first_last": delta,
+            "units": "mm (annual sum)",
+        }
     if hum_col in annual:
         slope_dec, slope_year, delta = linear_trend_annual(annual[hum_col])
-        trends["humidity"] = {"slope_per_decade": slope_dec, "delta_first_last": delta, "units": "% RH (approx)"}
+        trends["humidity"] = {
+            "slope_per_decade": slope_dec,
+            "delta_first_last": delta,
+            "units": "% RH (approx)",
+        }
     trends_df = pd.DataFrame(trends).T
     save_df(trends_df, outdir / "trend_summary_annual.csv")
 
     # 8) Correlation matrix (monthly)
     corr_summary = None
     if co2_col is not None:
-        use_cols = [co2_col] + [c for c in [temp_col, rain_col, hum_col] if c is not None]
+        use_cols = [co2_col] + [
+            c for c in [temp_col, rain_col, hum_col] if c is not None
+        ]
     else:
         use_cols = [c for c in [temp_col, rain_col, hum_col] if c is not None]
 
@@ -173,7 +199,8 @@ def run_eda(csv_path: Path,
         monthly[temp_col].plot()
         roll[temp_col].plot()
         plt.title("Temperature — Monthly Mean and 12-mo Rolling")
-        plt.xlabel("Date"); plt.ylabel("Temperature")
+        plt.xlabel("Date")
+        plt.ylabel("Temperature")
         plt.tight_layout()
         plt.savefig(outdir / "plot_temperature_trend.png", dpi=150)
     plt.close()
@@ -183,7 +210,8 @@ def run_eda(csv_path: Path,
         monthly[rain_col].plot()
         roll[rain_col].plot()
         plt.title("Rainfall — Monthly Total and 12-mo Rolling")
-        plt.xlabel("Date"); plt.ylabel("Rainfall")
+        plt.xlabel("Date")
+        plt.ylabel("Rainfall")
         plt.tight_layout()
         plt.savefig(outdir / "plot_rainfall_trend.png", dpi=150)
     plt.close()
@@ -193,7 +221,8 @@ def run_eda(csv_path: Path,
         monthly[hum_col].plot()
         roll[hum_col].plot()
         plt.title("Humidity — Monthly Mean and 12-mo Rolling")
-        plt.xlabel("Date"); plt.ylabel("Relative Humidity")
+        plt.xlabel("Date")
+        plt.ylabel("Relative Humidity")
         plt.tight_layout()
         plt.savefig(outdir / "plot_humidity_trend.png", dpi=150)
     plt.close()
@@ -202,7 +231,8 @@ def run_eda(csv_path: Path,
         plt.figure()
         annual[rain_col].plot(kind="bar")
         plt.title("Annual Rainfall (Sum)")
-        plt.xlabel("Year"); plt.ylabel("Rainfall (annual sum)")
+        plt.xlabel("Year")
+        plt.ylabel("Rainfall (annual sum)")
         plt.tight_layout()
         plt.savefig(outdir / "plot_annual_rainfall_bar.png", dpi=150)
         plt.close()
@@ -213,7 +243,8 @@ def run_eda(csv_path: Path,
             plt.figure()
             plt.scatter(aligned[co2_col], aligned[temp_col], s=12)
             plt.title("CO2 vs Temperature (Monthly)")
-            plt.xlabel("CO2"); plt.ylabel("Temperature")
+            plt.xlabel("CO2")
+            plt.ylabel("Temperature")
             plt.tight_layout()
             plt.savefig(outdir / "plot_co2_vs_temp_scatter.png", dpi=150)
             plt.close()
@@ -223,12 +254,16 @@ def run_eda(csv_path: Path,
     info_lines.append("Phase 4 — EDA Summary")
     info_lines.append(f"CSV: {csv_path.name}")
     info_lines.append(f"Date range: {df.index.min().date()} to {df.index.max().date()}")
-    info_lines.append(f"Detected columns: {dict(date_index=df.index.name, temp=temp_col, rain=rain_col, hum=hum_col, co2=co2_col)}")
+    info_lines.append(
+        f"Detected columns: {dict(date_index=df.index.name, temp=temp_col, rain=rain_col, hum=hum_col, co2=co2_col)}"
+    )
 
     def add_trend_line(label, key):
         t = trends.get(key, {})
         if t:
-            info_lines.append(f"- {label} trend: slope≈{t['slope_per_decade']:.3f}/decade; Δ(first→last)≈{t['delta_first_last']:.3f} ({t['units']})")
+            info_lines.append(
+                f"- {label} trend: slope≈{t['slope_per_decade']:.3f}/decade; Δ(first→last)≈{t['delta_first_last']:.3f} ({t['units']})"
+            )
 
     add_trend_line("Temperature", "temperature")
     add_trend_line("Rainfall", "rainfall")
@@ -239,7 +274,9 @@ def run_eda(csv_path: Path,
         pairs = corr_summary.unstack().dropna()
         # remove self-pairs
         pairs = pairs[[a != b for a, b in pairs.index]]
-        pairs = pairs.reindex(pairs.abs().sort_values(ascending=False).index).drop_duplicates()
+        pairs = pairs.reindex(
+            pairs.abs().sort_values(ascending=False).index
+        ).drop_duplicates()
         for (a, b), val in pairs.head(6).items():
             info_lines.append(f"  • {a} vs {b}: r={val:.3f}")
 
@@ -255,7 +292,7 @@ def run_eda(csv_path: Path,
         "- monthly_correlations.csv (if ≥2 variables)\n"
         "- plot_*.png (PNG charts)\n"
         "- EDA_summary.txt (key takeaways)\n",
-        encoding="utf-8"
+        encoding="utf-8",
     )
 
     return {
@@ -263,20 +300,45 @@ def run_eda(csv_path: Path,
         "temperature_column": temp_col,
         "rainfall_column": rain_col,
         "humidity_column": hum_col,
-        "co2_column": co2_col
+        "co2_column": co2_col,
     }
 
 
 def main():
     p = argparse.ArgumentParser(description="Phase 4 — EDA for Pune climate + CO2")
-    p.add_argument("--csv", required=True, help="Path to CSV (e.g., pune_climate_with_co2.csv)")
-    p.add_argument("--outdir", default="outputs/phase4", help="Directory to write EDA outputs")
-    p.add_argument("--date", dest="date_col", default=None, help="Date column name (optional)")
-    p.add_argument("--temp", dest="temp_col", default=None, help="Temperature column name (optional)")
-    p.add_argument("--rain", dest="rain_col", default=None, help="Rainfall/precip column name (optional)")
-    p.add_argument("--hum",  dest="hum_col",  default=None, help="Humidity column name (optional)")
-    p.add_argument("--co2",  dest="co2_col",  default=None, help="CO2 column name (optional)")
-    p.add_argument("--freq", dest="daily_freq", default="D", help="Base frequency for daily index (default D)")
+    p.add_argument(
+        "--csv", required=True, help="Path to CSV (e.g., pune_climate_with_co2.csv)"
+    )
+    p.add_argument(
+        "--outdir", default="outputs/phase4", help="Directory to write EDA outputs"
+    )
+    p.add_argument(
+        "--date", dest="date_col", default=None, help="Date column name (optional)"
+    )
+    p.add_argument(
+        "--temp",
+        dest="temp_col",
+        default=None,
+        help="Temperature column name (optional)",
+    )
+    p.add_argument(
+        "--rain",
+        dest="rain_col",
+        default=None,
+        help="Rainfall/precip column name (optional)",
+    )
+    p.add_argument(
+        "--hum", dest="hum_col", default=None, help="Humidity column name (optional)"
+    )
+    p.add_argument(
+        "--co2", dest="co2_col", default=None, help="CO2 column name (optional)"
+    )
+    p.add_argument(
+        "--freq",
+        dest="daily_freq",
+        default="D",
+        help="Base frequency for daily index (default D)",
+    )
     args = p.parse_args()
 
     csv_path = Path(args.csv)
@@ -289,7 +351,7 @@ def main():
         rain_col=args.rain_col,
         hum_col=args.hum_col,
         co2_col=args.co2_col,
-        daily_freq=args.daily_freq
+        daily_freq=args.daily_freq,
     )
 
     print("Phase 4 EDA complete.")
