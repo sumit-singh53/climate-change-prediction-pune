@@ -1,6 +1,6 @@
 """
-Enhanced Real-time Dashboard for Climate and AQI Monitoring and Prediction
-Beautiful Streamlit dashboard with advanced visualizations and model accuracy metrics
+Advanced Real-time Dashboard for Climate and AQI Monitoring and Prediction
+Professional Streamlit dashboard with comprehensive visualizations and ML analytics
 """
 
 import sqlite3
@@ -17,13 +17,13 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from enhanced_ml_models import EnhancedMLModels
+from optimized_ml_models import OptimizedMLModels
 from config import DATABASE_CONFIG, PUNE_LOCATIONS
 from realtime_data_collector import RealtimeDataCollector
 
 # Page configuration
 st.set_page_config(
-    page_title="🌍 Pune Climate & AQI Prediction Dashboard",
+    page_title="🌍 Pune Climate & AQI Analytics Dashboard",
     page_icon="🌍",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -89,12 +89,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-class EnhancedDashboard:
+class AdvancedDashboard:
     """Enhanced dashboard with beautiful visualizations and real-time ML training data"""
 
     def __init__(self):
         self.db_path = DATABASE_CONFIG["sqlite_path"]
-        self.ml_models = EnhancedMLModels()
+        self.ml_models = OptimizedMLModels()
         self.realtime_collector = RealtimeDataCollector()
 
     def load_recent_data(self, hours: int = 24) -> Dict[str, pd.DataFrame]:
@@ -376,7 +376,7 @@ class EnhancedDashboard:
         """Run the enhanced dashboard"""
         
         # Header with gradient
-        st.markdown('<h1 class="main-header">🌍 Enhanced Climate & AQI Prediction System</h1>', unsafe_allow_html=True)
+        st.markdown('<h1 class="main-header">🌍 Pune Climate & AQI Analytics System</h1>', unsafe_allow_html=True)
         st.markdown("### 🤖 Real-time ML Training Data & Advanced Analytics")
         
         # Sidebar controls
@@ -580,7 +580,7 @@ class EnhancedDashboard:
 
 def main():
     """Main function to run the enhanced dashboard"""
-    dashboard = EnhancedDashboard()
+    dashboard = AdvancedDashboard()
     dashboard.run_dashboard()
 
 

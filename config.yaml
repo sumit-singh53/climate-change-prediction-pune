@@ -1,0 +1,172 @@
+# Pune Climate Dashboard Configuration
+# Configuration file for deployment and application settings
+
+app:
+  name: "Pune Climate Dashboard"
+  version: "1.0.0"
+  description: "Comprehensive climate analysis and prediction system for Pune, India"
+  author: "Climate Analytics Team"
+  
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8501
+  max_upload_size: 200  # MB
+  enable_cors: true
+  
+# Database Configuration
+database:
+  type: "sqlite"
+  path: "data/climate_database.db"
+  backup_enabled: true
+  backup_interval: 24  # hours
+  
+# API Configuration
+apis:
+  openweather:
+    enabled: true
+    base_url: "https://api.openweathermap.org/data/2.5"
+    timeout: 30
+    rate_limit: 60  # requests per minute
+    
+  weatherapi:
+    enabled: true
+    base_url: "https://api.weatherapi.com/v1"
+    timeout: 30
+    rate_limit: 100
+    
+  aqicn:
+    enabled: true
+    base_url: "https://api.waqi.info"
+    timeout: 30
+    rate_limit: 1000
+    
+# Data Configuration
+data:
+  default_start_year: 2020
+  default_end_year: 2024
+  max_records: 100000
+  cache_duration: 3600  # seconds
+  auto_refresh: true
+  refresh_interval: 86400  # seconds (24 hours)
+  
+# Model Configuration
+models:
+  default_models: ["linear", "random_forest", "prophet"]
+  max_training_time: 300  # seconds
+  auto_optimize: false
+  save_models: true
+  model_cache_duration: 604800  # seconds (7 days)
+  
+# Prediction Configuration
+predictions:
+  default_forecast_years: [2026, 2030, 2035, 2040, 2050]
+  max_forecast_years: 30
+  confidence_intervals: true
+  uncertainty_quantification: true
+  
+# Visualization Configuration
+visualizations:
+  default_theme: "plotly"
+  color_palette: "viridis"
+  figure_width: 800
+  figure_height: 600
+  interactive: true
+  export_formats: ["png", "pdf", "html"]
+  
+# Report Configuration
+reports:
+  default_format: "pdf"
+  include_charts: true
+  include_data_tables: true
+  include_recommendations: true
+  max_report_size: 50  # MB
+  
+# Security Configuration
+security:
+  enable_authentication: false
+  session_timeout: 3600  # seconds
+  max_login_attempts: 5
+  rate_limiting: true
+  
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/climate_dashboard.log"
+  max_file_size: 10  # MB
+  backup_count: 5
+  
+# Performance Configuration
+performance:
+  enable_caching: true
+  cache_size: 1000  # MB
+  parallel_processing: true
+  max_workers: 4
+  memory_limit: 2048  # MB
+  
+# Feature Flags
+features:
+  real_time_data: true
+  ai_recommendations: true
+  chatbot: true
+  advanced_analytics: true
+  export_functionality: true
+  user_uploads: true
+  
+# Deployment Configuration
+deployment:
+  environment: "production"  # development, staging, production
+  debug: false
+  auto_reload: false
+  
+# Cloud Configuration (for deployment)
+cloud:
+  provider: "streamlit_cloud"  # streamlit_cloud, heroku, aws, gcp, azure
+  region: "us-east-1"
+  instance_type: "standard"
+  auto_scaling: true
+  min_instances: 1
+  max_instances: 3
+  
+# Monitoring Configuration
+monitoring:
+  enable_metrics: true
+  metrics_endpoint: "/metrics"
+  health_check_endpoint: "/health"
+  uptime_monitoring: true
+  error_tracking: true
+  
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  storage_location: "backups/"
+  compress: true
+  
+# Notification Configuration
+notifications:
+  email_enabled: false
+  slack_enabled: false
+  webhook_enabled: false
+  alert_thresholds:
+    high_temperature: 40  # Celsius
+    poor_air_quality: 150  # AQI
+    system_error_rate: 5  # Percentage
+    
+# Localization Configuration
+localization:
+  default_language: "en"
+  supported_languages: ["en", "hi", "mr"]  # English, Hindi, Marathi
+  timezone: "Asia/Kolkata"
+  date_format: "%Y-%m-%d"
+  time_format: "%H:%M:%S"
+  
+# Integration Configuration
+integrations:
+  google_analytics: false
+  social_sharing: true
+  embed_support: true
+  api_access: true
+  webhook_support: false

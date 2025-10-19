@@ -584,7 +584,7 @@ class RealtimeDashboard:
         # Auto-refresh
         if auto_refresh:
             time.sleep(30)
-            st.experimental_rerun()
+            st.rerun()
 
         # Footer
         st.markdown("---")

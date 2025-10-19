@@ -45,7 +45,7 @@ warnings.filterwarnings("ignore")
 from config import DATABASE_CONFIG, MODEL_CONFIG, PUNE_LOCATIONS
 
 
-class EnhancedMLModels:
+class OptimizedMLModels:
     """Enhanced ML models with advanced feature engineering and hyperparameter optimization"""
     
     def __init__(self):

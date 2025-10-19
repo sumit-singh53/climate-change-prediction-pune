@@ -13,7 +13,7 @@ import numpy as np
 # Add src to path
 sys.path.append('src')
 
-from enhanced_ml_models import EnhancedMLModels
+from optimized_ml_models import OptimizedMLModels
 from config import MODEL_CONFIG
 
 def main():
@@ -25,7 +25,7 @@ def main():
     print()
     
     # Initialize enhanced ML models
-    ml_models = EnhancedMLModels()
+    ml_models = OptimizedMLModels()
     
     # Target variables to train
     target_variables = MODEL_CONFIG['target_variables']
