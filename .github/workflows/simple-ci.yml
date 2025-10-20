@@ -76,7 +76,7 @@ jobs:
     
     - name: Test Docker image
       run: |
-        docker run --rm climate-prediction:test python -c "print('✅ Docker container runs successfully')"
+        docker run --rm climate-prediction:test
 
   success:
     name: All Tests Passed
