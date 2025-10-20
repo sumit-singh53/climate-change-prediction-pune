@@ -164,8 +164,14 @@ jobs:
         context: .
         push: false
         tags: climate-prediction:test
+        load: true
         cache-from: type=gha
         cache-to: type=gha,mode=max
+    
+    - name: Verify Docker image exists
+      run: |
+        docker images | grep climate-prediction || echo "Image not found in local registry"
+        docker image ls climate-prediction:test
     
     - name: Test Docker container
       run: |
