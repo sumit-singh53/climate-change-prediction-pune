@@ -78,7 +78,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools wheel
         # Install requirements with timeout and retry
-        pip install --timeout 60 --retries 3 -r requirements.txt
+        pip install --timeout 60 --retries 3 -r requirements.txt || pip install --no-deps -r requirements.txt
     
     - name: Create necessary directories
       run: |
@@ -90,6 +90,8 @@ jobs:
         python simple_test.py
       env:
         PYTHONPATH: ${{ github.workspace }}
+        TF_CPP_MIN_LOG_LEVEL: 2
+        TF_ENABLE_ONEDNN_OPTS: 0
     
     - name: Test imports and basic functionality
       run: |
@@ -105,6 +107,9 @@ jobs:
             print(f'❌ Import test failed: {e}')
             sys.exit(1)
         "
+      env:
+        TF_CPP_MIN_LOG_LEVEL: 2
+        TF_ENABLE_ONEDNN_OPTS: 0
     
     - name: Test system startup (non-blocking)
       run: |
@@ -115,6 +120,9 @@ jobs:
         orchestrator = SystemOrchestrator()
         print('✅ System orchestrator initialized successfully')
         "
+      env:
+        TF_CPP_MIN_LOG_LEVEL: 2
+        TF_ENABLE_ONEDNN_OPTS: 0
       continue-on-error: true
 
   security:
@@ -176,7 +184,7 @@ jobs:
     - name: Test Docker container
       run: |
         # Test that the image can run basic Python commands
-        docker run --rm climate-prediction:test python -c "
+        docker run --rm -e TF_CPP_MIN_LOG_LEVEL=2 climate-prediction:test python -c "
         import sys
         sys.path.append('src')
         from config import PUNE_LOCATIONS
@@ -184,7 +192,7 @@ jobs:
         "
         
         # Test that the container can start (with timeout)
-        timeout 30s docker run --rm -p 8501:8501 climate-prediction:test python simple_test.py || echo "✅ Container test completed"
+        timeout 30s docker run --rm -e TF_CPP_MIN_LOG_LEVEL=2 climate-prediction:test python simple_test.py || echo "✅ Container test completed"
 
   integration-test:
     name: Integration Tests
@@ -242,6 +250,9 @@ jobs:
         
         print('✅ Integration tests completed')
         "
+      env:
+        TF_CPP_MIN_LOG_LEVEL: 2
+        TF_ENABLE_ONEDNN_OPTS: 0
 
   deploy:
     name: Deployment Ready

@@ -30,6 +30,7 @@ RUN mkdir -p data/raw data/processed data/external data/api \
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV TF_CPP_MIN_LOG_LEVEL=2
+ENV TF_ENABLE_ONEDNN_OPTS=0
 
 # Expose ports
 EXPOSE 8501

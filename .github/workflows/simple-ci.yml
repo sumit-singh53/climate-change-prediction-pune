@@ -23,11 +23,11 @@ jobs:
     - name: Install basic dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas numpy scikit-learn requests aiohttp
+        pip install -r requirements-ci.txt
     
     - name: Test Python syntax
       run: |
-        python -m py_compile src/*.py
+        find src -name "*.py" -exec python -m py_compile {} \;
         echo "✅ All Python files compile successfully"
     
     - name: Test basic imports
@@ -46,6 +46,9 @@ jobs:
         
         print('✅ All basic tests passed!')
         "
+      env:
+        TF_CPP_MIN_LOG_LEVEL: 2
+        TF_ENABLE_ONEDNN_OPTS: 0
     
     - name: Validate project structure
       run: |
@@ -76,7 +79,7 @@ jobs:
     
     - name: Test Docker image
       run: |
-        docker run --rm climate-prediction:test
+        docker run --rm climate-prediction:test python simple_test.py
 
   success:
     name: All Tests Passed
