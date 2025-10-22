@@ -128,8 +128,8 @@ class RealtimeDataCollector:
             cursor.execute(
                 """
                 INSERT OR REPLACE INTO location_metadata
-                (location_id, name, latitude, longitude, district, zone, last_updated)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (location_id, name, latitude, longitude, district, zone, elevation, population_density, last_updated)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     loc_id,
@@ -138,6 +138,8 @@ class RealtimeDataCollector:
                     loc_config.lon,
                     loc_config.district,
                     loc_config.zone,
+                    getattr(loc_config, 'elevation', 0.0),
+                    getattr(loc_config, 'population_density', 0.0),
                     datetime.now().isoformat(),
                 ),
             )
